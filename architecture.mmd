@@ -1,0 +1,47 @@
+graph TD
+    subgraph "Frontend Layer"
+        UI[UI Components]
+        Pages[Screen Pages]
+        Widgets[Custom Widgets]
+    end
+
+    subgraph "Service Layer"
+        FS[Firebase Service]
+        ES[Email Service]
+        PS[PDF Service]
+    end
+
+    subgraph "Data Layer"
+        Models[Data Models]
+        subgraph "Firebase"
+            FB_AUTH[Firebase Auth]
+            FIRESTORE[Firestore Database]
+            EMAIL_QUEUE[Email Queue]
+        end
+    end
+
+    subgraph "External Services"
+        SMTP[SMTP Server]
+        SMS[SMS Gateway]
+    end
+
+    %% Frontend connections
+    UI --> Pages
+    Pages --> Widgets
+    Pages --> FS
+    Pages --> ES
+    Pages --> PS
+
+    %% Service connections
+    FS --> FB_AUTH
+    FS --> FIRESTORE
+    ES --> FS
+    ES --> EMAIL_QUEUE
+    ES --> SMTP
+    ES --> SMS
+    PS --> FS
+
+    %% Data connections
+    FS --> Models
+    ES --> Models
+    Models -.-> FIRESTORE 

@@ -1,0 +1,54 @@
+graph TD
+    %% Actors
+    Customer((Customer))
+    Admin((Admin))
+    EmailSystem((Email System))
+    
+    %% Use Cases - Customer
+    UC1[Book Appointment]
+    UC2[Check Appointment Status]
+    UC3[View Doctors]
+    UC4[View Pet Details]
+    UC5[View Service Details]
+    UC6[Request Appointment from Doctor Page]
+    
+    %% Use Cases - Admin
+    UC7[Login to Admin Area]
+    UC8[Manage Appointments]
+    UC9[Configure Email Settings]
+    UC10[Test Email System]
+    UC11[Send Email Confirmations]
+    UC12[Generate PDF Reports]
+    
+    %% Email System Use Cases
+    UC13[Send Appointment Confirmation]
+    UC14[Send Appointment Request Receipt]
+    UC15[Queue Emails for Web Platform]
+    
+    %% Relationships - Customer
+    Customer --> UC1
+    Customer --> UC2
+    Customer --> UC3
+    Customer --> UC4
+    Customer --> UC5
+    Customer --> UC6
+    
+    %% Relationships - Admin
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
+    Admin --> UC10
+    Admin --> UC11
+    Admin --> UC12
+    
+    %% Email System Relationships
+    EmailSystem --> UC13
+    EmailSystem --> UC14
+    EmailSystem --> UC15
+    
+    %% Dependencies
+    UC1 --> UC14
+    UC8 --> UC13
+    UC9 --> UC15
+    UC10 --> UC13
+    UC11 --> UC13 

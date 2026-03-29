@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin';
+    }
+    
+    function isVeterinarian() {
+      return isAuthenticated() && 
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.veterinarian';
+    }
+    
+    function isFarmer() {
+      return isAuthenticated() && 
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.farmer';
+    }
+    
+    function isImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isDocumentType() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    }
+    
+    function isFileSizeValid() {
+      return request.resource.size <= 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    // Animal photos rules
+    match /animal_photos/{animalId} {
+      allow read: if isAuthenticated();
+      allow create: if (isVeterinarian() || isAdmin()) && 
+                      isImageType() && 
+                      isFileSizeValid();
+      allow update: if (isVeterinarian() || isAdmin()) && 
+                      isImageType() && 
+                      isFileSizeValid();
+      allow delete: if isAdmin();
+    }
+    
+    // Treatment documents rules
+    match /treatment_docs/{treatmentId} {
+      allow read: if isAuthenticated();
+      allow create: if (isVeterinarian() || isAdmin()) && 
+                      isDocumentType() && 
+                      isFileSizeValid();
+      allow update: if (isVeterinarian() || isAdmin()) && 
+                      isDocumentType() && 
+                      isFileSizeValid();
+      allow delete: if isAdmin();
+    }
+    
+    // Report documents rules
+    match /reports/{reportId} {
+      allow read: if isAuthenticated();
+      allow create: if (isVeterinarian() || isAdmin()) && 
+                      isDocumentType() && 
+                      isFileSizeValid();
+      allow update: if (isVeterinarian() || isAdmin()) && 
+                      isDocumentType() && 
+                      isFileSizeValid();
+      allow delete: if isAdmin();
+    }
+    
+    // Profile pictures rules
+    match /profile_pics/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      request.auth.uid == userId && 
+                      isImageType() && 
+                      isFileSizeValid();
+      allow update: if isAuthenticated() && 
+                      request.auth.uid == userId && 
+                      isImageType() && 
+                      isFileSizeValid();
+      allow delete: if isAuthenticated() && 
+                      (request.auth.uid == userId || isAdmin());
+    }
+  }
+} 

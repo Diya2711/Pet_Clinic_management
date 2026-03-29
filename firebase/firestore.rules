@@ -1,0 +1,100 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin';
+    }
+    
+    function isVeterinarian() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.veterinarian';
+    }
+    
+    function isFarmer() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.farmer';
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // User collection rules
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Animals collection rules
+    match /animals/{animalId} {
+      allow read: if isAuthenticated();
+      allow create: if isVeterinarian() || isAdmin();
+      allow update: if isVeterinarian() || isAdmin();
+      allow delete: if isAdmin();
+      
+      // Farmers can only read their own animals
+      allow read: if isFarmer() && resource.data.ownerId == request.auth.uid;
+    }
+    
+    // Appointments collection rules
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isVeterinarian() || isAdmin() || 
+        (isFarmer() && resource.data.ownerId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+    
+    // Medicine reminders collection rules
+    match /medicine_reminders/{reminderId} {
+      allow read: if isAuthenticated() && (
+        isVeterinarian() || 
+        isAdmin() || 
+        (isFarmer() && resource.data.ownerId == request.auth.uid)
+      );
+      allow create: if isVeterinarian() || isAdmin();
+      allow update: if isVeterinarian() || isAdmin();
+      allow delete: if isVeterinarian() || isAdmin();
+    }
+    
+    // Treatment records collection rules
+    match /treatments/{treatmentId} {
+      allow read: if isAuthenticated() && (
+        isVeterinarian() || 
+        isAdmin() || 
+        (isFarmer() && resource.data.ownerId == request.auth.uid)
+      );
+      allow create: if isVeterinarian() || isAdmin();
+      allow update: if isVeterinarian() || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Reports collection rules
+    match /reports/{reportId} {
+      allow read: if isAuthenticated();
+      allow create: if isVeterinarian() || isAdmin();
+      allow update: if isVeterinarian() || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Notifications collection rules
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      allow create: if isVeterinarian() || isAdmin();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+  }
+} 

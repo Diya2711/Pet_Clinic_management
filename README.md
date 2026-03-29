@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🐶 Flutter Pet Clinic App
 
 This repo contains a Flutter based app inspired by the beautiful design made by *Atul Dhone*, shared on Uplabs, see: [Uplabs Pet Clinic](https://www.uplabs.com/posts/pet-clinic).
@@ -143,3 +144,7 @@ Or the following repo's:
 - A To Do App based on Flutter: [To Do](https://github.com/LiveLikeCounter/Flutter-Todolist)
 - A Paypal Redesign made in Flutter: [Paypal Redesign](https://github.com/LiveLikeCounter/Flutter-Paypal-Redesign)
 
+=======
+# Pet_Clinic_management
+🐶 Flutter Pet Clinic App A Flutter-based mobile app for pet healthcare that lets users explore veterinary services, view pet information, and book appointments. Includes an admin dashboard with real-time data using Firebase. 🛠️ Tech Stack: Flutter, Dart, Firebase ✨ Features: Service browsing, pet info, booking system, admin panel
+>>>>>>> 5b9ef5dcd8292de6dd0d8628542907d28552d054
